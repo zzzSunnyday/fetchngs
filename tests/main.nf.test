@@ -1,0 +1,40 @@
+nextflow_pipeline {
+
+    name "Test pipeline"
+    script "../main.nf"
+    tag "PIPELINE"
+
+    test("Run with profile test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = 'https://raw.githubusercontent.com/nf-core/test-datasets/2732b911c57e607fa7aea5ba0c3d91b25bafb662/testdata/v1.12.0/sra_ids_test.csv'
+            }
+        }
+
+        then {
+            // stable_name: All files + folders in ${params.outdir}/ with a stable name
+            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            // stable_path: All files in ${params.outdir}/ with stable content
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            assertAll(
+                { assert new File("$outputDir/samplesheet/samplesheet.csv").readLines().size() == 15 },
+                { assert new File("$outputDir/samplesheet/samplesheet.csv").readLines()*.split(',')[0].take(4) == ['"sample"', '"fastq_1"', '"fastq_2"', '"run_accession"'] },
+                { assert new File("$outputDir/samplesheet/samplesheet.csv").readLines()*.split(',').collect { it[0] } == ['"sample"', '"DRX024467"', '"DRX026011"', '"ERX1234253"', '"SRX10940790"', '"SRX11047067"', '"SRX17709227"', '"SRX17709228"', '"SRX6725035"', '"SRX9315476"', '"SRX9504942"', '"SRX9504942"', '"SRX9504942"', '"SRX9504942"', '"SRX9626017"'] },
+                { assert new File("$outputDir/samplesheet/samplesheet.csv").text.contains('Illumina HiSeq 2500') },
+                { assert workflow.success},
+                { assert snapshot(
+                    // Number of successful tasks
+                    workflow.trace.succeeded().size(),
+                    // pipeline versions.yml file for multiqc from which Nextflow version is removed because we tests pipelines on multiple Nextflow versions
+                    removeNextflowVersion("$outputDir/pipeline_info/nf_core_fetchngs_software_mqc_versions.yml"),
+                    // All stable path name, with a relative path
+                    stable_name,
+                    // All stable path
+                    stable_path
+                ).match()}
+            )
+        }
+    }
+}
