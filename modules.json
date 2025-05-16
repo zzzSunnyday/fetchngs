@@ -35,11 +35,6 @@
                         "git_sha": "1fc29f92e439d5631fdf34b8ac4687297d70f5ec",
                         "installed_by": ["subworkflows"]
                     },
-                    "utils_nextflow_pipeline": {
-                        "branch": "master",
-                        "git_sha": "c2b22d85f30a706a3073387f30380704fcae013b",
-                        "installed_by": ["subworkflows"]
-                    },
                     "utils_nfcore_pipeline": {
                         "branch": "master",
                         "git_sha": "51ae5406a030d4da1e49e4dab49756844fdd6c7a",

@@ -8,14 +8,16 @@
 ========================================================================================
 */
 
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
-include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { completionEmail       } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary     } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification        } from '../../nf-core/utils_nfcore_pipeline'
+include { paramsSummaryMap      } from 'plugin/nf-schema'
+include { samplesheetToList     } from 'plugin/nf-schema'
+include { getWorkflowVersion    } from 'plugin/nf-utils'
+include { dumpParametersToJSON  } from 'plugin/nf-utils'
+include { checkCondaChannels    } from 'plugin/nf-utils'
+include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN } from '../../nf-core/utils_nfschema_plugin'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,23 +37,26 @@ workflow PIPELINE_INITIALISATION {
 
     main:
 
-    //
-    // Print version and exit if required and dump pipeline parameters to JSON file
-    //
-    UTILS_NEXTFLOW_PIPELINE (
-        version,
-        true,
-        outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
-    )
+    ch_versions = Channel.empty()
 
+    // Plugin-based parameter dump and version info
+    if (outdir) {
+        dumpParametersToJSON(outdir, params)
+    }
+    def version_str = getWorkflowVersion(workflow.manifest.version, workflow.commitId)
+    println("Pipeline version: ${version_str}")
+    if (workflow.profile && workflow.profile.contains('conda')) {
+        if (!checkCondaChannels()) {
+            log.warn("Conda channels are not configured correctly!")
+        }
+    }
     //
     // Validate parameters and generate parameter summary to stdout
     //
-    UTILS_NFSCHEMA_PLUGIN (
+    UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
-        null
+        null,
     )
 
     //
