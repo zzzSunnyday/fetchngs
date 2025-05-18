@@ -8,17 +8,18 @@
 ========================================================================================
 */
 
-include { completionEmail       } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary     } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification        } from '../../nf-core/utils_nfcore_pipeline'
-include { paramsSummaryMap      } from 'plugin/nf-schema'
-include { samplesheetToList     } from 'plugin/nf-schema'
-include { getWorkflowVersion    } from 'plugin/nf-utils'
-include { dumpParametersToJSON  } from 'plugin/nf-utils'
-include { checkCondaChannels    } from 'plugin/nf-utils'
-include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
-include { paramsSummaryLog      } from 'plugin/nf-schema'
-include { validateParameters    } from 'plugin/nf-schema'
+include { completionEmail      } from 'plugin/nf-utils'
+include { completionSummary    } from 'plugin/nf-utils'
+include { imNotification       } from 'plugin/nf-utils'
+include { paramsSummaryMap     } from 'plugin/nf-schema'
+include { samplesheetToList    } from 'plugin/nf-schema'
+include { getWorkflowVersion   } from 'plugin/nf-utils'
+include { dumpParametersToJSON } from 'plugin/nf-utils'
+include { checkCondaChannels   } from 'plugin/nf-utils'
+include { checkConfigProvided  } from 'plugin/nf-utils'
+include { checkProfileProvided } from 'plugin/nf-utils'
+include { paramsSummaryLog     } from 'plugin/nf-schema'
+include { validateParameters   } from 'plugin/nf-schema'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,12 +71,9 @@ workflow PIPELINE_INITIALISATION {
         log.info(paramsSummaryLog(workflow))
     }
 
-    //
     // Check config provided to the pipeline
-    //
-    UTILS_NFCORE_PIPELINE(
-        nextflow_cli_args
-    )
+    valid_config = checkConfigProvided()
+    checkProfileProvided(nextflow_cli_args)
 
     //
     // Create channel from input file provided through params.input
