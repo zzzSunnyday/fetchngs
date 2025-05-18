@@ -17,7 +17,8 @@ include { getWorkflowVersion    } from 'plugin/nf-utils'
 include { dumpParametersToJSON  } from 'plugin/nf-utils'
 include { checkCondaChannels    } from 'plugin/nf-utils'
 include { UTILS_NFCORE_PIPELINE } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFSCHEMA_PLUGIN } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryLog      } from 'plugin/nf-schema'
+include { validateParameters    } from 'plugin/nf-schema'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,14 +51,24 @@ workflow PIPELINE_INITIALISATION {
             log.warn("Conda channels are not configured correctly!")
         }
     }
+
     //
     // Validate parameters and generate parameter summary to stdout
     //
-    UTILS_NFSCHEMA_PLUGIN(
-        workflow,
-        validate_params,
-        null,
-    )
+    if (validate_params) {
+        // Print parameter summary to stdout. This will display the parameters
+        // that differ from the default given in the JSON schema
+        // TODO log.info(paramsSummaryLog(workflow, parameters_schema: parameters_schema))
+        log.info(paramsSummaryLog(workflow))
+
+        // Validate the parameters using nextflow_schema.json or the schema
+        // given via the validation.parametersSchema configuration option
+        // TODO if (parameters_schema) { validateParameters(parameters_schema: parameters_schema)
+        validateParameters()
+    }
+    else {
+        log.info(paramsSummaryLog(workflow))
+    }
 
     //
     // Check config provided to the pipeline
