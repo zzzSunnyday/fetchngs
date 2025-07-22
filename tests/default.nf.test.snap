@@ -123,6 +123,9 @@
                 "SRX9626017_SRR13191702_2.fastq.gz.md5:md5,c30ac785f8d80ec563fabf604d8bf945",
                 "id_mappings.csv:md5,33c5e095dbbb15def4e3b402eba6ade2",
                 "multiqc_config.yml:md5,bb99e81ddd360988338c10ecbdbce65a"
+            ],
+            [
+                samplesheet.csv:md5,65d9ba5a8c0c10170006eb066bebb6c2"
             ]
         ],
         "meta": {
