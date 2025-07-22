@@ -18,6 +18,8 @@ nextflow_pipeline {
             def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
             // stable_path: All files in ${params.outdir}/ with stable content
             def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            // csv_files: All csv files
+            def csv_files = getAllFilesFromDir(outdir, include: ['**/*.csv'])
             assert workflow.success
             assertAll(
                 { assert snapshot(
@@ -28,7 +30,9 @@ nextflow_pipeline {
                     // All stable path name, with a relative path
                     stable_name,
                     // All files with stable contents
-                    stable_path
+                    stable_path,
+                    // Samplesheet
+                    csv_files.collect { file -> file.getName() + ":md5," + path(file.toString()).csv.sort().view().replaceAll("${params.outdir}", '').md5() }
                 ).match() }
             )
         }
