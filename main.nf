@@ -15,7 +15,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { FETCHNGS  } from './workflows/fetchngs'
+include { SRA                     } from './workflows/sra'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 /*
@@ -25,22 +25,22 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_fetc
 */
 
 //
-// WORKFLOW: Run main analysis pipeline depending on type of input
+// WORKFLOW: Run main nf-core/fetchngs analysis pipeline depending on type of identifier provided
 //
 workflow NFCORE_FETCHNGS {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    ids // channel: database ids read in from --input
 
     main:
 
     //
-    // WORKFLOW: Run pipeline
+    // WORKFLOW: Download FastQ files for SRA / ENA / GEO / DDBJ ids
     //
-    FETCHNGS (
-        samplesheet
-    )
+    SRA ( ids )
+
 }
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -59,14 +59,15 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
+        params.ena_metadata_fields
     )
 
     //
-    // WORKFLOW: Run main workflow
+    // WORKFLOW: Run primary workflows for the pipeline
     //
     NFCORE_FETCHNGS (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.ids
     )
     //
     // SUBWORKFLOW: Run completion tasks
