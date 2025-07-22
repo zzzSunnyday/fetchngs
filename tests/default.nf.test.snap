@@ -1,5 +1,5 @@
 {
-    "Run with profile test": {
+    "-profile test": {
         "content": [
             53,
             {
@@ -17,9 +17,6 @@
                 },
                 "SRA_RUNINFO_TO_FTP": {
                     "python": "3.9.5"
-                },
-                "Workflow": {
-                    "nf-core/fetchngs": "v1.13.0dev"
                 }
             },
             [
@@ -126,12 +123,13 @@
                 "SRX9626017_SRR13191702_2.fastq.gz.md5:md5,c30ac785f8d80ec563fabf604d8bf945",
                 "id_mappings.csv:md5,33c5e095dbbb15def4e3b402eba6ade2",
                 "multiqc_config.yml:md5,bb99e81ddd360988338c10ecbdbce65a"
-            ]
+            ],
+            "samplesheet.csv:md5,7228808fff2dc191bd444e947df5c408"
         ],
         "meta": {
-            "nf-test": "0.9.0",
-            "nextflow": "24.09.1"
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
         },
-        "timestamp": "2024-10-14T12:05:34.473179"
+        "timestamp": "2025-07-22T14:13:27.801771851"
     }
 }

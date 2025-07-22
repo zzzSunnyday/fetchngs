@@ -8,14 +8,14 @@
 ========================================================================================
 */
 
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
-include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
+include { completionEmail         } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary       } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification          } from '../../nf-core/utils_nfcore_pipeline'
+include { paramsSummaryMap        } from 'plugin/nf-schema'
+include { samplesheetToList       } from 'plugin/nf-schema'
+include { UTILS_NEXTFLOW_PIPELINE } from '../../nf-core/utils_nextflow_pipeline'
+include { UTILS_NFCORE_PIPELINE   } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFSCHEMA_PLUGIN   } from '../../nf-core/utils_nfschema_plugin'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,7 +24,6 @@ include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
 */
 
 workflow PIPELINE_INITIALISATION {
-
     take:
     version             // boolean: Display version and exit
     validate_params     // boolean: Boolean whether to validate parameters against the schema at runtime
@@ -39,26 +38,26 @@ workflow PIPELINE_INITIALISATION {
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
     //
-    UTILS_NEXTFLOW_PIPELINE (
+    UTILS_NEXTFLOW_PIPELINE(
         version,
         true,
         outdir,
-        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1
+        workflow.profile.tokenize(',').intersect(['conda', 'mamba']).size() >= 1,
     )
 
     //
     // Validate parameters and generate parameter summary to stdout
     //
-    UTILS_NFSCHEMA_PLUGIN (
+    UTILS_NFSCHEMA_PLUGIN(
         workflow,
         validate_params,
-        null
+        null,
     )
 
     //
     // Check config provided to the pipeline
     //
-    UTILS_NFCORE_PIPELINE (
+    UTILS_NFCORE_PIPELINE(
         nextflow_cli_args
     )
 
@@ -68,14 +67,14 @@ workflow PIPELINE_INITIALISATION {
     ch_input = file(input)
     if (isSraId(ch_input)) {
         sraCheckENAMetadataFields(ena_metadata_fields)
-    } else {
+    }
+    else {
         error('Ids provided via --input not recognised please make sure they are either SRA / ENA / GEO / DDBJ ids!')
     }
 
     // Read in ids from --input file
-    Channel
-        .from(ch_input)
-        .splitCsv(header:false, sep:'', strip:true)
+    Channel.from(ch_input)
+        .splitCsv(header: false, sep: '', strip: true)
         .map { it[0] }
         .unique()
         .set { ch_ids }
@@ -91,7 +90,6 @@ workflow PIPELINE_INITIALISATION {
 */
 
 workflow PIPELINE_COMPLETION {
-
     take:
     email           //  string: email address
     email_on_fail   //  string: email address sent on pipeline failure
@@ -115,7 +113,7 @@ workflow PIPELINE_COMPLETION {
                 plaintext_email,
                 outdir,
                 monochrome_logs,
-                []
+                [],
             )
         }
 
@@ -128,7 +126,7 @@ workflow PIPELINE_COMPLETION {
     }
 
     workflow.onError {
-        log.error "Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting"
+        log.error("Pipeline failed. Please refer to troubleshooting docs: https://nf-co.re/docs/usage/troubleshooting")
     }
 }
 
@@ -157,7 +155,8 @@ def isSraId(input) {
     if (num_match > 0) {
         if (num_match == total_ids) {
             is_sra = true
-        } else {
+        }
+        else {
             error("Mixture of ids provided via --input: ${no_match_ids.join(', ')}\nPlease provide either SRA / ENA / GEO / DDBJ ids!")
         }
     }
@@ -170,7 +169,7 @@ def isSraId(input) {
 def sraCheckENAMetadataFields(ena_metadata_fields) {
     // Check minimal ENA fields are provided to download FastQ files
     def valid_ena_metadata_fields = ['run_accession', 'experiment_accession', 'library_layout', 'fastq_ftp', 'fastq_md5']
-    def actual_ena_metadata_fields = ena_metadata_fields ? ena_metadata_fields.split(',').collect{ it.trim().toLowerCase() } : valid_ena_metadata_fields
+    def actual_ena_metadata_fields = ena_metadata_fields ? ena_metadata_fields.split(',').collect { it.trim().toLowerCase() } : valid_ena_metadata_fields
     if (!actual_ena_metadata_fields.containsAll(valid_ena_metadata_fields)) {
         error("Invalid option: '${ena_metadata_fields}'. Minimally required fields for '--ena_metadata_fields': '${valid_ena_metadata_fields.join(',')}'")
     }
@@ -179,12 +178,7 @@ def sraCheckENAMetadataFields(ena_metadata_fields) {
 // Print a warning after pipeline has completed
 //
 def sraCurateSamplesheetWarn() {
-    log.warn "=============================================================================\n" +
-        "  Please double-check the samplesheet that has been auto-created by the pipeline.\n\n" +
-        "  Public databases don't reliably hold information such as strandedness\n" +
-        "  information, controls etc\n\n" +
-        "  All of the sample metadata obtained from the ENA has been appended\n" +
-        "  as additional columns to help you manually curate the samplesheet before\n" +
-        "  running nf-core/other pipelines.\n" +
-        "==================================================================================="
+    log.warn(
+        "=============================================================================\n" + "  Please double-check the samplesheet that has been auto-created by the pipeline.\n\n" + "  Public databases don't reliably hold information such as strandedness\n" + "  information, controls etc\n\n" + "  All of the sample metadata obtained from the ENA has been appended\n" + "  as additional columns to help you manually curate the samplesheet before\n" + "  running nf-core/other pipelines.\n" + "==================================================================================="
+    )
 }
