@@ -32,7 +32,7 @@ nextflow_pipeline {
                     // All files with stable contents
                     stable_path,
                     // Samplesheet
-                    csv_files.collect { file -> file.getName() + ":md5," + path(file.toString()).csv.sort().view().replaceAll("${params.outdir}", '').md5() }
+                    csv_files.collect { file -> file.getName() + ":md5," + path(file.toString()).csv.sort().view().replaceAll(params.outdir, '').md5() }
                 ).match() }
             )
         }
