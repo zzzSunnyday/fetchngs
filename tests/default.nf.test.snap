@@ -124,7 +124,7 @@
                 "id_mappings.csv:md5,33c5e095dbbb15def4e3b402eba6ade2",
                 "multiqc_config.yml:md5,bb99e81ddd360988338c10ecbdbce65a"
             ],
-            "samplesheet.csv:md5,f9010c0193a016a20c35bf635ba98beb"
+            "samplesheet.csv:md5,581b51f45725d21d548125e2af247eda"
         ],
         "meta": {
             "nf-test": "0.9.2",
