@@ -10,6 +10,7 @@ include { SRA_IDS_TO_RUNINFO      } from '../../modules/local/sra_ids_to_runinfo
 include { SRA_RUNINFO_TO_FTP      } from '../../modules/local/sra_runinfo_to_ftp'
 include { ASPERA_CLI              } from '../../modules/local/aspera_cli'
 include { SRA_TO_SAMPLESHEET      } from '../../modules/local/sra_to_samplesheet'
+include { FASTQDL                 } from '../../modules/nf-core/fastqdl/main' 
 include { softwareVersionsToYAML  } from '../../subworkflows/nf-core/utils_nfcore_pipeline'
 
 /*
