@@ -10,7 +10,7 @@ include { SRA_IDS_TO_RUNINFO      } from '../../modules/local/sra_ids_to_runinfo
 include { SRA_RUNINFO_TO_FTP      } from '../../modules/local/sra_runinfo_to_ftp'
 include { ASPERA_CLI              } from '../../modules/local/aspera_cli'
 include { SRA_TO_SAMPLESHEET      } from '../../modules/local/sra_to_samplesheet'
-include { FASTQDL                 } from '../../modules/nf-core/fastqdl/main' 
+include { FASTQDL                 } from '../../modules/nf-core/fastqdl/main'
 include { softwareVersionsToYAML  } from '../../subworkflows/nf-core/utils_nfcore_pipeline'
 
 /*
@@ -77,12 +77,17 @@ workflow SRA {
                     if (meta.fastq_aspera && params.download_method == 'aspera') {
                         download_method = 'aspera'
                     }
+                    if (params.download_method == 'fastq-dl') {
+                        download_method = 'fastq-dl'
+                    }
                     if ((!meta.fastq_aspera && !meta.fastq_1) || params.download_method == 'sratools') {
                         download_method = 'sratools'
                     }
 
                     aspera: download_method == 'aspera'
                         return [ meta, meta.fastq_aspera.tokenize(';').take(2) ]
+                    fastqdl: download_method == 'fastq-dl'
+                        return [ meta, meta.run_accession ]
                     ftp: download_method == 'ftp'
                         return [ meta, [ meta.fastq_1, meta.fastq_2 ] ]
                     sratools: download_method == 'sratools'
@@ -116,12 +121,18 @@ workflow SRA {
         )
         ch_versions = ch_versions.mix(ASPERA_CLI.out.versions.first())
 
+        FASTQDL (
+            ch_sra_reads.fastqdl
+        )
+        ch_versions = ch_versions.mix(FASTQDL.out.versions)
+
         // Isolate FASTQ channel which will be added to emit block
         SRA_FASTQ_FTP
             .out
             .fastq
             .mix(FASTQ_DOWNLOAD_PREFETCH_FASTERQDUMP_SRATOOLS.out.reads)
             .mix(ASPERA_CLI.out.fastq)
+            .mix(FASTQDL.out.fastq)
             .map {
                 meta, fastq ->
                     def reads = fastq instanceof List ? fastq.flatten() : [ fastq ]
