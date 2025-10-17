@@ -72,7 +72,7 @@ See [issue #260](https://github.com/nf-core/fetchngs/issues/260) for more detail
 
 ### Primary options for downloading data
 
-If the appropriate download links are available, the pipeline uses FTP by default to download FastQ files by setting the `--download_method ftp` parameter. If you are having issues and prefer to use sra-tools or Aspera instead, you can set the [`--download_method`](https://nf-co.re/fetchngs/parameters#download_method) parameter to `--download_method sratools` or `--download_method aspera`, respectively.
+If the appropriate download links are available, the pipeline uses FTP by default to download FastQ files by setting the `--download_method ftp` parameter. If you are having issues and prefer to use sra-tools, Aspera or fastq-dl instead, you can set the [`--download_method`](https://nf-co.re/fetchngs/parameters#download_method) parameter to `--download_method sratools`, `--download_method aspera` or `--download_method fastq-dl`, respectively.
 
 ### Downloading dbGAP data with JWT
 

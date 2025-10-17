@@ -12,6 +12,8 @@
 
 - [Aspera CLI](https://github.com/IBM/aspera-cli)
 
+- [fastq-dl](https://github.com/rpetit3/fastq-dl)
+
 - [Python](http://www.python.org)
 
 - [Requests](https://docs.python-requests.org/)
