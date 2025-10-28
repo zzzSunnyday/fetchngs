@@ -18,10 +18,9 @@ nextflow_workflow {
             params {
                 outdir = "$outputDir"
             }
-            workflow {
-                """
-                input[0] = Channel.from("DRX026011", "ERX1234253", "SRX6725035")
-                """
+            params {
+                outdir = "$outputDir"
+                input = 'https://raw.githubusercontent.com/nf-core/test-datasets/2732b911c57e607fa7aea5ba0c3d91b25bafb662/testdata/v1.12.0/sra_ids_test.csv'
             }
         }
 
