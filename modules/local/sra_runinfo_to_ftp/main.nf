@@ -1,4 +1,6 @@
 
+nextflow.preview.types = true
+
 process SRA_RUNINFO_TO_FTP {
 
     conda "conda-forge::python=3.9.5"
@@ -7,16 +9,18 @@ process SRA_RUNINFO_TO_FTP {
         'biocontainers/python:3.9--1' }"
 
     input:
-    path runinfo
+    runinfo: Path
 
     output:
-    path "*.tsv"       , emit: tsv
-    tuple val("${task.process}"), val('python'), eval("python --version | sed 's/Python //g'"), topic: versions
+    file('*.runinfo_ftp.tsv')
+
+    topic:
+    record(process: task.process, name: 'python', version: eval("python --version | sed 's/Python //g'")) >> 'versions'
 
     script:
     """
     sra_runinfo_to_ftp.py \\
-        ${runinfo.join(',')} \\
-        ${runinfo.toString().tokenize(".")[0]}.runinfo_ftp.tsv
+        ${runinfo} \\
+        ${runinfo.baseName.tokenize(".")[0]}.runinfo_ftp.tsv
     """
 }

@@ -1,5 +1,7 @@
+nextflow.preview.types = true
+
 process ASPERA_CLI {
-    tag "$meta.id"
+    tag id
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -8,18 +10,32 @@ process ASPERA_CLI {
         'biocontainers/aspera-cli:4.14.0--hdfd78af_1' }"
 
     input:
-    tuple val(meta), val(fastq)
-    val user
+    (
+        id: String,
+        single_end: Boolean,
+        fastq_aspera: String,
+        md5_1: String,
+        md5_2: String?
+    ): Record
+    user: String
 
     output:
-    tuple val(meta), path("*fastq.gz"), emit: fastq
-    tuple val(meta), path("*md5")     , emit: md5
-    tuple val("${task.process}"), val('aspera_cli'), eval('ascli --version'), topic: versions
+    record(
+        id: id,
+        fastq_1: file('*_1.fastq.gz'),
+        fastq_2: file('*_2.fastq.gz', optional: true),
+        md5_1: file('*_1.fastq.gz.md5'),
+        md5_2: file('*_2.fastq.gz.md5', optional: true),
+    )
+
+    topic:
+    record(process: task.process, name: 'aspera_cli', version: eval('ascli --version')) >> 'versions'
 
     script:
     def args = task.ext.args ?: ''
     def conda_prefix = ['singularity', 'apptainer'].contains(workflow.containerEngine) ? "export CONDA_PREFIX=/usr/local" : ""
-    if (meta.single_end) {
+    def fastq = fastq_aspera.tokenize(';')
+    if (single_end) {
         """
         $conda_prefix
 
@@ -27,10 +43,10 @@ process ASPERA_CLI {
             $args \\
             -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
             ${user}@${fastq[0]} \\
-            ${meta.id}.fastq.gz
+            ${id}.fastq.gz
 
-        echo "${meta.md5_1}  ${meta.id}.fastq.gz" > ${meta.id}.fastq.gz.md5
-        md5sum -c ${meta.id}.fastq.gz.md5
+        echo "${md5_1}  ${id}.fastq.gz" > ${id}.fastq.gz.md5
+        md5sum -c ${id}.fastq.gz.md5
         """
     } else {
         """
@@ -40,19 +56,19 @@ process ASPERA_CLI {
             $args \\
             -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
             ${user}@${fastq[0]} \\
-            ${meta.id}_1.fastq.gz
+            ${id}_1.fastq.gz
 
-        echo "${meta.md5_1}  ${meta.id}_1.fastq.gz" > ${meta.id}_1.fastq.gz.md5
-        md5sum -c ${meta.id}_1.fastq.gz.md5
+        echo "${md5_1}  ${id}_1.fastq.gz" > ${id}_1.fastq.gz.md5
+        md5sum -c ${id}_1.fastq.gz.md5
 
         ascp \\
             $args \\
             -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
             ${user}@${fastq[1]} \\
-            ${meta.id}_2.fastq.gz
+            ${id}_2.fastq.gz
 
-        echo "${meta.md5_2}  ${meta.id}_2.fastq.gz" > ${meta.id}_2.fastq.gz.md5
-        md5sum -c ${meta.id}_2.fastq.gz.md5
+        echo "${md5_2}  ${id}_2.fastq.gz" > ${id}_2.fastq.gz.md5
+        md5sum -c ${id}_2.fastq.gz.md5
         """
     }
 }

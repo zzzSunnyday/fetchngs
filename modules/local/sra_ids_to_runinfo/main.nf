@@ -1,6 +1,8 @@
 
+nextflow.preview.types = true
+
 process SRA_IDS_TO_RUNINFO {
-    tag "$id"
+    tag id
     label 'error_retry'
 
     conda "conda-forge::python=3.9.5"
@@ -9,12 +11,14 @@ process SRA_IDS_TO_RUNINFO {
         'biocontainers/python:3.9--1' }"
 
     input:
-    val id
-    val fields
+    id: String
+    fields: String
 
     output:
-    path "*.tsv"       , emit: tsv
-    tuple val("${task.process}"), val('python'), eval("python --version | sed 's/Python //g'"), topic: versions
+    file('*.runinfo.tsv')
+
+    topic:
+    record(process: task.process, name: 'python', version: eval("python --version | sed 's/Python //g'")) >> 'versions'
 
     script:
     def metadata_fields = fields ? "--ena_metadata_fields ${fields}" : ''

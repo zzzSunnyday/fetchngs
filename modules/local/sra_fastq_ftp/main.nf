@@ -1,6 +1,8 @@
 
+nextflow.preview.types = true
+
 process SRA_FASTQ_FTP {
-    tag "$meta.id"
+    tag id
     label 'process_low'
     label 'error_retry'
 
@@ -10,42 +12,56 @@ process SRA_FASTQ_FTP {
         'biocontainers/wget:1.21.4' }"
 
     input:
-    tuple val(meta), val(fastq)
+    (
+        id: String,
+        single_end: Boolean,
+        fastq_1: String,
+        fastq_2: String?,
+        md5_1: String,
+        md5_2: String?
+    ): Record
 
     output:
-    tuple val(meta), path("*fastq.gz"), emit: fastq
-    tuple val(meta), path("*md5")     , emit: md5
-    tuple val("${task.process}"), val('wget'), eval("echo \$(wget --version | head -n 1 | sed 's/^GNU Wget //; s/ .*\$//')"), topic: versions
+    record(
+        id: id,
+        fastq_1: file('*_1.fastq.gz'),
+        fastq_2: file('*_2.fastq.gz'),
+        md5_1: file('*_1.fastq.gz.md5'),
+        md5_2: file('*_2.fastq.gz.md5'),
+    )
+
+    topic:
+    record(process: task.process, name: 'wget', version: eval("echo \$(wget --version | head -n 1 | sed 's/^GNU Wget //; s/ .*\$//')")) >> 'versions'
 
     script:
     def args = task.ext.args ?: ''
-    if (meta.single_end) {
+    if (single_end) {
         """
         wget \\
             $args \\
-            -O ${meta.id}.fastq.gz \\
-            ${fastq[0]}
+            -O ${id}.fastq.gz \\
+            ${fastq_1}
 
-        echo "${meta.md5_1}  ${meta.id}.fastq.gz" > ${meta.id}.fastq.gz.md5
-        md5sum -c ${meta.id}.fastq.gz.md5
+        echo "${md5_1}  ${id}.fastq.gz" > ${id}.fastq.gz.md5
+        md5sum -c ${id}.fastq.gz.md5
         """
     } else {
         """
         wget \\
             $args \\
-            -O ${meta.id}_1.fastq.gz \\
-            ${fastq[0]}
+            -O ${id}_1.fastq.gz \\
+            ${fastq_1}
 
-        echo "${meta.md5_1}  ${meta.id}_1.fastq.gz" > ${meta.id}_1.fastq.gz.md5
-        md5sum -c ${meta.id}_1.fastq.gz.md5
+        echo "${md5_1}  ${id}_1.fastq.gz" > ${id}_1.fastq.gz.md5
+        md5sum -c ${id}_1.fastq.gz.md5
 
         wget \\
             $args \\
-            -O ${meta.id}_2.fastq.gz \\
-            ${fastq[1]}
+            -O ${id}_2.fastq.gz \\
+            ${fastq_2}
 
-        echo "${meta.md5_2}  ${meta.id}_2.fastq.gz" > ${meta.id}_2.fastq.gz.md5
-        md5sum -c ${meta.id}_2.fastq.gz.md5
+        echo "${md5_2}  ${id}_2.fastq.gz" > ${id}_2.fastq.gz.md5
+        md5sum -c ${id}_2.fastq.gz.md5
         """
     }
 }
