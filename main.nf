@@ -16,6 +16,7 @@
 */
 
 include { SRA                     } from './workflows/sra'
+include { PRIDE                   } from './workflows/pride'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_fetchngs_pipeline'
 /*
@@ -35,9 +36,26 @@ workflow NFCORE_FETCHNGS {
     main:
 
     //
-    // WORKFLOW: Download FastQ files for SRA / ENA / GEO / DDBJ ids
+    // Determine database type from input file
     //
-    SRA ( ids )
+    def db_type = getDbType(params.input)
+
+    //
+    // WORKFLOW: Route to appropriate workflow based on database type
+    //
+    if (db_type == 'sra') {
+        //
+        // WORKFLOW: Download FastQ files for SRA / ENA / GEO / DDBJ ids
+        //
+        SRA ( ids )
+    }
+
+    if (db_type == 'pride') {
+        //
+        // WORKFLOW: Download proteomics data for PRIDE / ProteomeXchange ids
+        //
+        PRIDE ( ids )
+    }
 
 }
 
@@ -80,6 +98,21 @@ workflow {
         params.monochrome_logs,
         params.hook_url,
     )
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// Determine database type from the first non-blank line of the input file
+//
+def getDbType(input_path) {
+    def firstId = file(input_path).readLines().find { it.trim() }?.trim() ?: ''
+    if (firstId =~ /^(PXD[0-9]{6,}|MSV[0-9]{9})$/) return 'pride'
+    return 'sra'
 }
 
 /*

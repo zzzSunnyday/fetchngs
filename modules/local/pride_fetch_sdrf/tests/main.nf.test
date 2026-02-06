@@ -1,0 +1,45 @@
+nextflow_process {
+
+    name "Test process: PRIDE_FETCH_SDRF"
+    script "../main.nf"
+    process "PRIDE_FETCH_SDRF"
+    tag "pride"
+
+    test("Should fetch SDRF for PXD001468") {
+
+        when {
+            process {
+                """
+                input[0] = 'PXD001468'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.sdrf },
+                { assert process.out.versions }
+            )
+        }
+    }
+
+    test("Should handle missing SDRF gracefully") {
+
+        when {
+            process {
+                """
+                input[0] = 'PXD000001'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.sdrf.size() == 0 },
+                { assert process.out.versions }
+            )
+        }
+    }
+}

@@ -1,0 +1,41 @@
+nextflow_process {
+
+    name "Test process: PRIDE_TO_SAMPLESHEET"
+    script "../main.nf"
+    process "PRIDE_TO_SAMPLESHEET"
+    tag "pride"
+
+    test("Should generate default samplesheet for PXD000001") {
+
+        setup {
+            run("PRIDE_METADATA") {
+                script "../../pride_metadata/main.nf"
+                process {
+                    """
+                    input[0] = 'PXD000001'
+                    input[1] = ''
+                    """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                input[0] = PRIDE_METADATA.out.data.first()
+                            .map { accession, json, files_tsv -> [accession, json, files_tsv, file('NO_FILE')] }
+                input[1] = ''
+                input[2] = ''
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.samplesheet },
+                { assert path(process.out.samplesheet[0]).text.contains('source name') }
+            )
+        }
+    }
+}

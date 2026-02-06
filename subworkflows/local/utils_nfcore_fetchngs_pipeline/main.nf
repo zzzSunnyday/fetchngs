@@ -68,12 +68,15 @@ workflow PIPELINE_INITIALISATION {
     if (isSraId(ch_input)) {
         sraCheckENAMetadataFields(ena_metadata_fields)
     }
+    else if (isPrideId(ch_input)) {
+        // PRIDE/ProteomeXchange identifiers - no additional validation needed
+    }
     else {
-        error('Ids provided via --input not recognised please make sure they are either SRA / ENA / GEO / DDBJ ids!')
+        error('Ids provided via --input not recognised please make sure they are either SRA / ENA / GEO / DDBJ / PXD / MSV ids!')
     }
 
     // Read in ids from --input file
-    Channel.from(ch_input)
+    channel.from(ch_input)
         .splitCsv(header: false, sep: '', strip: true)
         .map { it[0] }
         .unique()
@@ -122,7 +125,12 @@ workflow PIPELINE_COMPLETION {
             imNotification(summary_params, hook_url)
         }
 
-        sraCurateSamplesheetWarn()
+        def firstId = file(params.input).readLines().find { it.trim() }?.trim() ?: ''
+        if (firstId =~ /^(PXD|MSV)/) {
+            prideCurateSamplesheetWarn()
+        } else {
+            sraCurateSamplesheetWarn()
+        }
     }
 
     workflow.onError {
@@ -180,5 +188,41 @@ def sraCheckENAMetadataFields(ena_metadata_fields) {
 def sraCurateSamplesheetWarn() {
     log.warn(
         "=============================================================================\n" + "  Please double-check the samplesheet that has been auto-created by the pipeline.\n\n" + "  Public databases don't reliably hold information such as strandedness\n" + "  information, controls etc\n\n" + "  All of the sample metadata obtained from the ENA has been appended\n" + "  as additional columns to help you manually curate the samplesheet before\n" + "  running nf-core/other pipelines.\n" + "==================================================================================="
+    )
+}
+
+//
+// Check if input ids are from PRIDE/ProteomeXchange
+//
+def isPrideId(input) {
+    def is_pride = false
+    def total_ids = 0
+    def no_match_ids = []
+    def pattern = /^(PXD[0-9]{6,}|MSV[0-9]{9})$/
+    input.eachLine { line ->
+        total_ids += 1
+        if (!(line =~ pattern)) {
+            no_match_ids << line
+        }
+    }
+
+    def num_match = total_ids - no_match_ids.size()
+    if (num_match > 0) {
+        if (num_match == total_ids) {
+            is_pride = true
+        }
+        else {
+            error("Mixture of ids provided via --input: ${no_match_ids.join(', ')}\nPlease provide either PXD or MSV ids!")
+        }
+    }
+    return is_pride
+}
+
+//
+// Print a warning after PRIDE pipeline has completed
+//
+def prideCurateSamplesheetWarn() {
+    log.warn(
+        "=============================================================================\n" + "  Please double-check the samplesheet that has been auto-created by the pipeline.\n\n" + "  The samplesheet has been generated from PRIDE project metadata.\n" + "  You may need to manually curate sample annotations, experimental\n" + "  conditions, and fractionation information before running\n" + "  nf-core/quantms or other downstream pipelines.\n" + "==================================================================================="
     )
 }

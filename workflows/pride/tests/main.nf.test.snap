@@ -1,0 +1,29 @@
+{
+    "Parameters: default": {
+        "content": [
+            [
+                "metadata",
+                "metadata/PXD000001.files.tsv",
+                "metadata/PXD000001.metadata.json",
+                "pipeline_info",
+                "pride",
+                "pride/PXD000001",
+                "pride/PXD000001/TMT_Erwinia_1uLSike_Top10HCD_isol2_45stepped_60min_01.raw",
+                "samplesheet",
+                "samplesheet/PXD000001.samplesheet.tsv",
+                "samplesheet/samplesheet.tsv"
+            ],
+            [
+                "PXD000001.files.tsv:md5,be0eba1a1115947f83cfc6e2cee426ed",
+                "PXD000001.metadata.json:md5,41ebc5bf0c38d19d6b5bcc1cf339d1f7",
+                "PXD000001.samplesheet.tsv:md5,ed0965b3ca39f2a096e3f452cf556975",
+                "samplesheet.tsv:md5,e19b2079466b4c11a37b8cb550b930e1"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
+        },
+        "timestamp": "2026-02-06T19:18:39.747743253"
+    }
+}

@@ -20,7 +20,7 @@
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.(csv|tsv|txt)$",
                     "fa_icon": "fas fa-file-excel",
-                    "description": "File containing SRA/ENA/GEO/DDBJ identifiers one per line to download their associated metadata and FastQ files."
+                    "description": "File containing SRA/ENA/GEO/DDBJ or PXD/MSV identifiers one per line to download their associated metadata and data files."
                 },
                 "ena_metadata_fields": {
                     "type": "string",
@@ -38,7 +38,7 @@
                     "type": "string",
                     "fa_icon": "fab fa-apple",
                     "description": "Name of supported nf-core pipeline e.g. 'rnaseq'. A samplesheet for direct use with the pipeline will be created with the appropriate columns.",
-                    "enum": ["rnaseq", "atacseq", "viralrecon", "taxprofiler"]
+                    "enum": ["rnaseq", "atacseq", "viralrecon", "taxprofiler", "quantms", "mhcquant"]
                 },
                 "nf_core_rnaseq_strandedness": {
                     "type": "string",
@@ -202,6 +202,36 @@
                 }
             }
         },
+        "pride_options": {
+            "title": "PRIDE/ProteomeXchange options",
+            "type": "object",
+            "fa_icon": "fas fa-flask",
+            "description": "Options for downloading proteomics data from PRIDE/ProteomeXchange.",
+            "properties": {
+                "pride_file_types": {
+                    "type": "string",
+                    "fa_icon": "fas fa-filter",
+                    "description": "Comma-separated list of PRIDE file categories to include in the file listing (e.g. RAW,PEAK,RESULT). If not set, all files are listed."
+                },
+                "pride_download_categories": {
+                    "type": "string",
+                    "default": "RAW",
+                    "fa_icon": "fas fa-layer-group",
+                    "description": "PRIDE file category to download (e.g. RAW, PEAK, RESULT, OTHER). Default is 'RAW'."
+                },
+                "pride_skip_file_download": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Only download metadata for PRIDE identifiers and don't download the data files."
+                },
+                "pride_use_existing_sdrf": {
+                    "type": "boolean",
+                    "default": true,
+                    "fa_icon": "fas fa-file-alt",
+                    "description": "Attempt to fetch a pre-annotated SDRF file from the bigbio repository for the given PRIDE accession."
+                }
+            }
+        },
         "deprecated_options": {
             "title": "Deprecated options",
             "type": "object",
@@ -231,6 +261,9 @@
         },
         {
             "$ref": "#/$defs/institutional_config_options"
+        },
+        {
+            "$ref": "#/$defs/pride_options"
         },
         {
             "$ref": "#/$defs/generic_options"

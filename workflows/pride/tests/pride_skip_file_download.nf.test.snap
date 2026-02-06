@@ -1,0 +1,26 @@
+{
+    "pride_skip_file_download": {
+        "content": [
+            [
+                "metadata",
+                "metadata/PXD000001.files.tsv",
+                "metadata/PXD000001.metadata.json",
+                "pipeline_info",
+                "samplesheet",
+                "samplesheet/PXD000001.samplesheet.tsv",
+                "samplesheet/samplesheet.tsv"
+            ],
+            [
+                "PXD000001.files.tsv:md5,be0eba1a1115947f83cfc6e2cee426ed",
+                "PXD000001.metadata.json:md5,41ebc5bf0c38d19d6b5bcc1cf339d1f7",
+                "PXD000001.samplesheet.tsv:md5,3feff9ece8b14ed415f7f3041cb31cf3",
+                "samplesheet.tsv:md5,7813450a86c8f2de83404bb7b271912c"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
+        },
+        "timestamp": "2026-02-06T19:17:29.812062225"
+    }
+}

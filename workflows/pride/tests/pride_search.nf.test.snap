@@ -1,0 +1,29 @@
+{
+    "Download SEARCH files": {
+        "content": [
+            [
+                "metadata",
+                "metadata/PXD068446.files.tsv",
+                "metadata/PXD068446.metadata.json",
+                "pipeline_info",
+                "pride",
+                "pride/PXD068446",
+                "pride/PXD068446/P1189-3_Atherosclerotic_plaque_elutie_Class_II_plus_virus.msf",
+                "samplesheet",
+                "samplesheet/PXD068446.samplesheet.tsv",
+                "samplesheet/samplesheet.tsv"
+            ],
+            [
+                "PXD068446.files.tsv:md5,3d4f6f36bc132429bc0b294524a4cc9b",
+                "PXD068446.metadata.json:md5,16790d4914646f6cbb469b03477f04ec",
+                "PXD068446.samplesheet.tsv:md5,e28df6251f1a5e6e15b98435e59dced8",
+                "samplesheet.tsv:md5,2df85e1aeb5b1af2dba81e401c73012a"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.3"
+        },
+        "timestamp": "2026-02-06T19:23:37.449628879"
+    }
+}

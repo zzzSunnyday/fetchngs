@@ -9,3 +9,8 @@ testing*
 null/
 .nf-test*
 test.xml
+
+# Claude Code
+CLAUDE.md
+.claude/
+docs/PRIDE_IMPLEMENTATION_PLAN.md

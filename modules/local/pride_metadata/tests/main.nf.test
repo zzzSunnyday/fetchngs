@@ -1,0 +1,66 @@
+nextflow_process {
+
+    name "Test process: PRIDE_METADATA"
+    script "../main.nf"
+    process "PRIDE_METADATA"
+    tag "pride"
+
+    test("Should fetch metadata and file listing for PXD000001") {
+
+        when {
+            process {
+                """
+                input[0] = 'PXD000001'
+                input[1] = ''
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.data },
+                { assert process.out.tsv },
+                { assert process.out.data[0][1].endsWith('.metadata.json') },
+                { assert process.out.data[0][2].endsWith('.files.tsv') },
+                { assert path(process.out.tsv[0]).text.contains('PXD000001') }
+            )
+        }
+    }
+
+    test("Should fetch only RAW files for PXD000001") {
+
+        when {
+            process {
+                """
+                input[0] = 'PXD000001'
+                input[1] = 'RAW'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.data },
+                { assert path(process.out.data[0][2]).text.contains('RAW') }
+            )
+        }
+    }
+
+    test("Should fail for invalid identifier") {
+
+        when {
+            process {
+                """
+                input[0] = 'INVALID123'
+                input[1] = ''
+                """
+            }
+        }
+
+        then {
+            assert process.failed
+        }
+    }
+}

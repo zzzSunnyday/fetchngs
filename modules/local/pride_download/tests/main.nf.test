@@ -1,0 +1,39 @@
+nextflow_process {
+
+    name "Test process: PRIDE_DOWNLOAD"
+    script "../main.nf"
+    process "PRIDE_DOWNLOAD"
+    tag "pride"
+
+    setup {
+        run("PRIDE_METADATA") {
+            script "../../pride_metadata/main.nf"
+            process {
+                """
+                input[0] = 'PXD000001'
+                input[1] = ''
+                """
+            }
+        }
+    }
+
+    test("Should download OTHER category files from PXD000001") {
+
+        when {
+            process {
+                """
+                input[0] = PRIDE_METADATA.out.data.map { accession, json, files_tsv -> [accession, files_tsv] }
+                input[1] = 'OTHER'
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.files },
+                { assert process.out.versions }
+            )
+        }
+    }
+}

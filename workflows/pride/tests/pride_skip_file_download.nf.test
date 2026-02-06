@@ -1,0 +1,29 @@
+nextflow_pipeline {
+
+    name "Test pipeline: PRIDE skip download"
+    script "../../../main.nf"
+    tag "pipeline"
+    tag "pride"
+    profile "test_pride_skip_download"
+
+    test("pride_skip_file_download") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/**'])
+            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'workflows/pride/tests/.nftignore')
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    stable_name,
+                    stable_path
+                ).match() }
+            )
+        }
+    }
+}
