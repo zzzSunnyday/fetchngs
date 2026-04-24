@@ -1,7 +1,6 @@
 {
     "-profile test": {
         "content": [
-            53,
             {
                 "CUSTOM_SRATOOLSNCBISETTINGS": {
                     "sratools": "3.0.8"
