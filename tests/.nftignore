@@ -1,3 +1,4 @@
+.DS_Store
 custom/user-settings.mkfg
 metadata/*.runinfo_ftp.tsv
 pipeline_info/*.{html,json,txt,yml}

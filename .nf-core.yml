@@ -1,6 +1,4 @@
-bump_version: null
 lint:
-  actions_ci: false
   files_exist:
     - .github/workflows/awsfulltest.yml
     - .github/workflows/awstest.yml
@@ -16,8 +14,7 @@ lint:
     - docs/images/nf-core-fetchngs_logo_light.png
   modules_config: false
   multiqc_config: false
-nf_core_version: 3.0.2
-org_path: null
+nf_core_version: 3.3.2
 repository_type: pipeline
 template:
   author: Harshil Patel, Moritz E. Beber and Jose Espinosa-Carrasco
@@ -32,4 +29,3 @@ template:
     - igenomes
     - multiqc
   version: 1.13.0dev
-update: null
