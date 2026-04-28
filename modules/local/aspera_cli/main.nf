@@ -17,7 +17,8 @@ process ASPERA_CLI {
     path "versions.yml"               , emit: versions
 
     script:
-    def args = task.ext.args ?: ''
+    def args = task.ext.args ?: '-l 1000m -T -P 33001 -k1'
+    def key_path = env.ASPERA_KEY_PATH ?: '$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem'
     def conda_prefix = ['singularity', 'apptainer'].contains(workflow.containerEngine) ? "export CONDA_PREFIX=/usr/local" : ""
     if (meta.single_end) {
         """
@@ -25,7 +26,7 @@ process ASPERA_CLI {
 
         ascp \\
             $args \\
-            -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
+            -i $key_path \\
             ${user}@${fastq[0]} \\
             ${meta.id}.fastq.gz
 
@@ -43,7 +44,7 @@ process ASPERA_CLI {
 
         ascp \\
             $args \\
-            -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
+            -i $key_path \\
             ${user}@${fastq[0]} \\
             ${meta.id}_1.fastq.gz
 
@@ -52,7 +53,7 @@ process ASPERA_CLI {
 
         ascp \\
             $args \\
-            -i \$CONDA_PREFIX/etc/aspera/aspera_bypass_dsa.pem \\
+            -i $key_path \\
             ${user}@${fastq[1]} \\
             ${meta.id}_2.fastq.gz
 
